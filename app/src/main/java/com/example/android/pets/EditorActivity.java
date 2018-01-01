@@ -15,6 +15,9 @@
  */
 package com.example.android.pets;
 
+import android.content.ContentUris;
+import android.content.ContentValues;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
@@ -26,6 +29,9 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.Toast;
+
+import com.example.android.pets.data.PetsContract;
 
 /**
  * Allows user to create a new pet or edit an existing one.
@@ -86,11 +92,11 @@ public class EditorActivity extends AppCompatActivity {
                 String selection = (String) parent.getItemAtPosition(position);
                 if (!TextUtils.isEmpty(selection)) {
                     if (selection.equals(getString(R.string.gender_male))) {
-                        mGender = 1; // Male
+                        mGender = PetsContract.PetEntry.GENDER_MALE; // Male
                     } else if (selection.equals(getString(R.string.gender_female))) {
-                        mGender = 2; // Female
+                        mGender = PetsContract.PetEntry.GENDER_FEMALE; // Female
                     } else {
-                        mGender = 0; // Unknown
+                        mGender = PetsContract.PetEntry.GENDER_UNKNOWN; // Unknown
                     }
                 }
             }
@@ -101,6 +107,52 @@ public class EditorActivity extends AppCompatActivity {
                 mGender = 0; // Unknown
             }
         });
+    }
+
+    private void insertPet(){
+
+        String name = mNameEditText.getText().toString().trim();
+        String breed = mBreedEditText.getText().toString().trim();
+        String weightText = mWeightEditText.getText().toString().trim();
+        int weight = Integer.parseInt(weightText);
+        String genderText = mGenderSpinner.getSelectedItem().toString().trim();
+        int gender;
+        switch (genderText){
+
+            case "Unknown":
+                gender = 0;
+                break;
+            case "Male":
+                gender = 1;
+                break;
+            case "Female":
+                gender = 2;
+                break;
+            default:
+                gender = 0;
+        }
+
+        // Create a new map of values, where column names are the keys
+        ContentValues values = new ContentValues();
+        values.put(PetsContract.PetEntry.COLUMN_NAME, name);
+        values.put(PetsContract.PetEntry.COLUMN_BREED, breed);
+        values.put(PetsContract.PetEntry.COLUMN_GENDER, gender);
+        values.put(PetsContract.PetEntry.COLUMN_WEIGHT, weight);
+
+        // Insert the new row, returning the primary key value of the new row
+        Uri newUri = getContentResolver().insert(PetsContract.PetEntry.CONTENT_URI,values);
+
+        if(newUri==null){
+
+            Toast toast = Toast.makeText(this, R.string.editor_error_insert_pet, Toast.LENGTH_LONG);
+            toast.show();
+
+        }else {
+
+            Toast toast2 = Toast.makeText(this, R.string.editor_insert_pet_successful + String.valueOf(ContentUris.parseId(newUri)), Toast.LENGTH_LONG);
+            toast2.show();
+
+        }
     }
 
     @Override
@@ -117,7 +169,10 @@ public class EditorActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             // Respond to a click on the "Save" menu option
             case R.id.action_save:
-                // Do nothing for now
+                //Saves pet in database
+                insertPet();
+                //Exits activity
+                finish();
                 return true;
             // Respond to a click on the "Delete" menu option
             case R.id.action_delete:
