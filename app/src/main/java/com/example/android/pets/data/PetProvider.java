@@ -88,6 +88,9 @@ public class PetProvider extends ContentProvider {
             default:
                 throw new IllegalArgumentException("Cannot query unknown URI " + uri);
         }
+        //Set the notification to the content resolver to update the CursorLoader with new changes in the database
+        cursor.setNotificationUri(getContext().getContentResolver(),uri);
+
         return cursor;
     }
 
@@ -142,6 +145,9 @@ public class PetProvider extends ContentProvider {
             return null;
         }
 
+        //notify the ContentResolver to update the the loader with the new info in the database
+        getContext().getContentResolver().notifyChange(uri,null);
+
         // Once we know the ID of the new row in the table,
         // return the new URI with the ID appended to the end of it
         return ContentUris.withAppendedId(uri, newRowId);
@@ -192,14 +198,14 @@ public class PetProvider extends ContentProvider {
             }
         }
 
-        if (values.containsKey(PetsContract.PetEntry.COLUMN_GENDER)) {
+        /*if (values.containsKey(PetsContract.PetEntry.COLUMN_GENDER)) {
             //Checks if introduced gender is one of the three validated
             String gender = values.getAsString(PetsContract.PetEntry.COLUMN_GENDER);
             if (gender != "Female" || gender != "Male" || gender != "Unknown" || gender == null) {
 
                 throw new IllegalArgumentException("Must enter a valid gender option");
             }
-        }
+        }*/
 
         if (values.containsKey(PetsContract.PetEntry.COLUMN_WEIGHT)) {
             //Checks if introduced weight is positive integer number
@@ -223,6 +229,10 @@ public class PetProvider extends ContentProvider {
             return 0;
         }
 
+
+        //notify the ContentResolver to update the the loader with the new info in the database
+        getContext().getContentResolver().notifyChange(uri,null);
+
         return newUpdateId;
     }
 
@@ -238,9 +248,15 @@ public class PetProvider extends ContentProvider {
         int match = sUriMatcher.match(uri);
         switch (match) {
             case PETS:
+
+                //notify the ContentResolver to update the the loader with the new info in the database
+                getContext().getContentResolver().notifyChange(uri,null);
                 // Delete all rows that match the selection and selection args
                 return database.delete(PetsContract.PetEntry.TABLE_NAME, selection, selectionArgs);
             case PET_ID:
+
+                //notify the ContentResolver to update the the loader with the new info in the database
+                getContext().getContentResolver().notifyChange(uri,null);
                 // Delete a single row given by the ID in the URI
                 selection = PetsContract.PetEntry._ID + "=?";
                 selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};

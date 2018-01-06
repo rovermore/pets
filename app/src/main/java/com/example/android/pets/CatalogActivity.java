@@ -30,6 +30,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.example.android.pets.data.PetDbHelper;
@@ -81,6 +82,24 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
         petsListView.setEmptyView(findViewById(R.id.empty_view));
 
         getSupportLoaderManager().initLoader(0, null, this);
+
+        petsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+                Intent intent = new Intent(CatalogActivity.this,EditorActivity.class);
+
+                //create the Uri with the info of the clicked item
+                Uri currentPetUri = ContentUris.withAppendedId(PetsContract.PetEntry.CONTENT_URI,id);
+
+                //attach the uri data to the intent
+                intent.setData(currentPetUri);
+
+                startActivity(intent);
+            }
+        });
+
 
     }
 

@@ -17,9 +17,14 @@ package com.example.android.pets;
 
 import android.content.ContentUris;
 import android.content.ContentValues;
+import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.LoaderManager;
 import android.support.v4.app.NavUtils;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.view.Menu;
@@ -36,7 +41,7 @@ import com.example.android.pets.data.PetsContract;
 /**
  * Allows user to create a new pet or edit an existing one.
  */
-public class EditorActivity extends AppCompatActivity {
+public class EditorActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
     /** EditText field to enter the pet's name */
     private EditText mNameEditText;
@@ -56,18 +61,45 @@ public class EditorActivity extends AppCompatActivity {
      */
     private int mGender = 0;
 
+    private Uri uri;
+
+    static final String[] PROJECTION = new String[] {
+            PetsContract.PetEntry._ID,
+            PetsContract.PetEntry.COLUMN_NAME,
+            PetsContract.PetEntry.COLUMN_BREED,
+            PetsContract.PetEntry.COLUMN_GENDER,
+            PetsContract.PetEntry.COLUMN_WEIGHT};
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_editor);
 
+        //Saves the intent that started the activity
+        Intent intent = getIntent();
+        //Gets the Uri of the intent
+        uri = intent.getData();
+        //Evaluates the uri and sets the activity title
+        if(uri!=null){
+            setTitle(getString(R.string.editor_activity_title_edit_pet));
+            setViews();
+            setupSpinner();
+            getSupportLoaderManager().initLoader(0, null, this);
+        }else{
+            setTitle(getString(R.string.editor_activity_title_new_pet));
+            setViews();
+            setupSpinner();
+        }
+
+
+    }
+
+    private void setViews(){
         // Find all relevant views that we will need to read user input from
         mNameEditText = (EditText) findViewById(R.id.edit_pet_name);
         mBreedEditText = (EditText) findViewById(R.id.edit_pet_breed);
         mWeightEditText = (EditText) findViewById(R.id.edit_pet_weight);
         mGenderSpinner = (Spinner) findViewById(R.id.spinner_gender);
-
-        setupSpinner();
     }
 
     /**
@@ -139,19 +171,23 @@ public class EditorActivity extends AppCompatActivity {
         values.put(PetsContract.PetEntry.COLUMN_GENDER, gender);
         values.put(PetsContract.PetEntry.COLUMN_WEIGHT, weight);
 
-        // Insert the new row, returning the primary key value of the new row
-        Uri newUri = getContentResolver().insert(PetsContract.PetEntry.CONTENT_URI,values);
+        if(uri==null) {
+            // Insert the new row, returning the primary key value of the new row
+            Uri newUri = getContentResolver().insert(PetsContract.PetEntry.CONTENT_URI, values);
 
-        if(newUri==null){
+            if (newUri == null) {
 
-            Toast toast = Toast.makeText(this, R.string.editor_error_insert_pet, Toast.LENGTH_LONG);
-            toast.show();
+                Toast toast = Toast.makeText(this, R.string.editor_error_insert_pet, Toast.LENGTH_LONG);
+                toast.show();
 
-        }else {
+            } else {
 
-            Toast toast2 = Toast.makeText(this, R.string.editor_insert_pet_successful + String.valueOf(ContentUris.parseId(newUri)), Toast.LENGTH_LONG);
-            toast2.show();
+                Toast toast2 = Toast.makeText(this, R.string.editor_insert_pet_successful + String.valueOf(ContentUris.parseId(newUri)), Toast.LENGTH_LONG);
+                toast2.show();
 
+            }
+        }else{
+            int petsUpdated = getContentResolver().update(uri,values,null,null);
         }
     }
 
@@ -185,5 +221,44 @@ public class EditorActivity extends AppCompatActivity {
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+
+        CursorLoader cursorLoader = new CursorLoader(getBaseContext(),uri,PROJECTION,null,null,null);
+
+        return cursorLoader;
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+
+
+        data.moveToFirst();
+        //set the data from the cursor to the views
+        String name = data.getString(data.getColumnIndexOrThrow(PetsContract.PetEntry.COLUMN_NAME));
+
+        String breed = data.getString(data.getColumnIndexOrThrow(PetsContract.PetEntry.COLUMN_BREED));
+
+        int gender = data.getInt(data.getColumnIndexOrThrow(PetsContract.PetEntry.COLUMN_GENDER));
+
+        int weight = data.getInt(data.getColumnIndexOrThrow(PetsContract.PetEntry.COLUMN_WEIGHT));
+
+        mNameEditText.setText(name);
+        mBreedEditText.setText(breed);
+        mGenderSpinner.setSelection(gender);
+        mWeightEditText.setText(Integer.toString(weight));
+
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        //set the views in blank
+        mNameEditText.setText(null);
+        mBreedEditText.setText(null);
+        mGenderSpinner.setSelection(0);
+        mWeightEditText.setText(null);
+
     }
 }
