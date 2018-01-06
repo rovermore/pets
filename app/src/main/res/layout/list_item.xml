@@ -11,7 +11,9 @@
         android:fontFamily="sans-serif-medium"
         android:textAppearance="?android:textAppearanceMedium"
         android:textColor="#2B3D4D"
-        android:text="Nombre"/>
+        android:text="Nombre"
+        android:paddingTop="15dp"
+        android:paddingLeft="15dp"/>
 
     <TextView
         android:id="@+id/pet_breed"
@@ -20,6 +22,9 @@
         android:fontFamily="sans-serif"
         android:textAppearance="?android:textAppearanceSmall"
         android:textColor="#AEB6BD"
-        android:text="Raza"/>
+        android:text="Raza"
+        android:paddingTop="10dp"
+        android:paddingLeft="15dp"
+        android:paddingBottom="15dp"/>
 
 </LinearLayout>

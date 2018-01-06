@@ -19,7 +19,6 @@ import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -32,7 +31,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListView;
-import android.widget.SimpleCursorAdapter;
 
 import com.example.android.pets.data.PetDbHelper;
 import com.example.android.pets.data.PetsContract;
@@ -43,6 +41,8 @@ import com.example.android.pets.data.PetsContract;
 public class CatalogActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
     public static PetDbHelper mDbHelper;
+
+    final int LOADER_ID=0;
 
     static final String[] PROJECTION = new String[] {
             PetsContract.PetEntry._ID,
@@ -80,34 +80,9 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
 
         petsListView.setEmptyView(findViewById(R.id.empty_view));
 
-        getLoaderManager().initLoader(0,null,CatalogActivity.this).forceLoad();
+        getSupportLoaderManager().initLoader(0, null, this);
 
     }
-
-    /*public void displayDatabaseInfo() {
-        // Create and/or open a database to read from it
-        SQLiteDatabase db = mDbHelper.getReadableDatabase();
-
-        // Perform this raw SQL query "SELECT * FROM pets"
-        // to get a Cursor that contains all rows from the pets table.
-        //Cursor cursor = db.rawQuery("SELECT * FROM " + PetsContract.PetEntry.TABLE_NAME, null);
-
-        String[] projection = {
-                PetsContract.PetEntry._ID,
-                PetsContract.PetEntry.COLUMN_NAME,
-                PetsContract.PetEntry.COLUMN_BREED,
-                PetsContract.PetEntry.COLUMN_GENDER,
-                PetsContract.PetEntry.COLUMN_WEIGHT
-        };
-        Cursor cursor = db.query(
-                PetsContract.PetEntry.TABLE_NAME,
-                projection,
-                null,
-                null,
-                null,
-                null,
-                null);
-    }*/
 
     public void insertPet(){
         // Create a new map of values, where column names are the keys
@@ -138,7 +113,6 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
             // Respond to a click on the "Insert dummy data" menu option
             case R.id.action_insert_dummy_data:
                 insertPet();
-                //displayDatabaseInfo();
                 return true;
             // Respond to a click on the "Delete all entries" menu option
             case R.id.action_delete_all_entries:
