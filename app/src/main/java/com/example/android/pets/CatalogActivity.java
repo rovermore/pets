@@ -43,8 +43,6 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
 
     public static PetDbHelper mDbHelper;
 
-    final int LOADER_ID=0;
-
     static final String[] PROJECTION = new String[] {
             PetsContract.PetEntry._ID,
             PetsContract.PetEntry.COLUMN_NAME,

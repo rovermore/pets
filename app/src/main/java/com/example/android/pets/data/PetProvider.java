@@ -198,15 +198,6 @@ public class PetProvider extends ContentProvider {
             }
         }
 
-        /*if (values.containsKey(PetsContract.PetEntry.COLUMN_GENDER)) {
-            //Checks if introduced gender is one of the three validated
-            String gender = values.getAsString(PetsContract.PetEntry.COLUMN_GENDER);
-            if (gender != "Female" || gender != "Male" || gender != "Unknown" || gender == null) {
-
-                throw new IllegalArgumentException("Must enter a valid gender option");
-            }
-        }*/
-
         if (values.containsKey(PetsContract.PetEntry.COLUMN_WEIGHT)) {
             //Checks if introduced weight is positive integer number
             Integer weight = values.getAsInteger(PetsContract.PetEntry.COLUMN_WEIGHT);

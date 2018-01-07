@@ -141,12 +141,17 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         });
     }
 
-    private void insertPet(){
+    private boolean insertPet(){
+
+        boolean isPetInserted = true;
 
         String name = mNameEditText.getText().toString().trim();
         String breed = mBreedEditText.getText().toString().trim();
         String weightText = mWeightEditText.getText().toString().trim();
-        int weight = Integer.parseInt(weightText);
+        int weight=0;
+        if (!TextUtils.isEmpty(weightText)) {
+            weight = Integer.parseInt(weightText);
+        }
         String genderText = mGenderSpinner.getSelectedItem().toString().trim();
         int gender;
         switch (genderText){
@@ -172,23 +177,36 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         values.put(PetsContract.PetEntry.COLUMN_WEIGHT, weight);
 
         if(uri==null) {
-            // Insert the new row, returning the primary key value of the new row
-            Uri newUri = getContentResolver().insert(PetsContract.PetEntry.CONTENT_URI, values);
+            //checks if fields contains values for the new insert to be complete
+            boolean isNameInserted = TextUtils.isEmpty(name);
+            boolean isBreedInserted = TextUtils.isEmpty(breed);
 
-            if (newUri == null) {
 
-                Toast toast = Toast.makeText(this, R.string.editor_error_insert_pet, Toast.LENGTH_LONG);
-                toast.show();
+            if(isNameInserted && isBreedInserted){
 
-            } else {
+                return isPetInserted=false;
+            }else {
 
-                Toast toast2 = Toast.makeText(this, R.string.editor_insert_pet_successful + String.valueOf(ContentUris.parseId(newUri)), Toast.LENGTH_LONG);
-                toast2.show();
+                // Insert the new row, returning the primary key value of the new row
+                Uri newUri = getContentResolver().insert(PetsContract.PetEntry.CONTENT_URI, values);
 
+                if (newUri == null) {
+
+                    Toast toast = Toast.makeText(this, R.string.editor_error_insert_pet, Toast.LENGTH_LONG);
+                    toast.show();
+
+                } else {
+
+                    Toast toast2 = Toast.makeText(this, R.string.editor_insert_pet_successful + String.valueOf(ContentUris.parseId(newUri)), Toast.LENGTH_LONG);
+                    toast2.show();
+
+                }
             }
         }else{
             int petsUpdated = getContentResolver().update(uri,values,null,null);
         }
+
+        return isPetInserted;
     }
 
     @Override
@@ -206,8 +224,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
             // Respond to a click on the "Save" menu option
             case R.id.action_save:
                 //Saves pet in database
-                insertPet();
-                //Exits activity
+                boolean inserted=insertPet();
                 finish();
                 return true;
             // Respond to a click on the "Delete" menu option
