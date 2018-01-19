@@ -247,7 +247,9 @@ public class PetProvider extends ContentProvider {
             case PET_ID:
 
                 //notify the ContentResolver to update the the loader with the new info in the database
-                getContext().getContentResolver().notifyChange(uri,null);
+
+                /*getContext().getContentResolver().notifyChange(uri,null);*/
+
                 // Delete a single row given by the ID in the URI
                 selection = PetsContract.PetEntry._ID + "=?";
                 selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};

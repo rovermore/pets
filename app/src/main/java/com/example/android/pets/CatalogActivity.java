@@ -159,4 +159,10 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
 
         petCursorAdapter.swapCursor(null);
     }
+
+    /*@Override
+    public void onResume(){
+        super.onResume();
+        getSupportLoaderManager().initLoader(0, null, this);
+    }*/
 }

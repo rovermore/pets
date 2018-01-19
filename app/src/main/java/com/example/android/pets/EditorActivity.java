@@ -41,6 +41,8 @@ import android.widget.Toast;
 
 import com.example.android.pets.data.PetsContract;
 
+import static android.widget.Toast.makeText;
+
 /**
  * Allows user to create a new pet or edit an existing one.
  */
@@ -109,7 +111,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
             getSupportLoaderManager().initLoader(0, null, this);
         }else{
             setTitle(getString(R.string.editor_activity_title_new_pet));
-            //setViews();
+            invalidateOptionsMenu();
             setupSpinner();
         }
 
@@ -213,12 +215,12 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 
                 if (newUri == null) {
 
-                    Toast toast = Toast.makeText(this, R.string.editor_error_insert_pet, Toast.LENGTH_LONG);
+                    Toast toast = makeText(this, R.string.editor_error_insert_pet, Toast.LENGTH_LONG);
                     toast.show();
 
                 } else {
 
-                    Toast toast2 = Toast.makeText(this, R.string.editor_insert_pet_successful + String.valueOf(ContentUris.parseId(newUri)), Toast.LENGTH_LONG);
+                    Toast toast2 = makeText(this, R.string.editor_insert_pet_successful + String.valueOf(ContentUris.parseId(newUri)), Toast.LENGTH_LONG);
                     toast2.show();
 
                 }
@@ -237,6 +239,16 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         getMenuInflater().inflate(R.menu.menu_editor, menu);
         return true;
     }
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+        // If this is a new pet, hide the "Delete" menu item.
+        if (uri == null) {
+            MenuItem deleteMenuItem = menu.findItem(R.id.action_delete);
+            deleteMenuItem.setVisible(false);
+        }
+        return true;
+    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -250,7 +262,9 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
                 return true;
             // Respond to a click on the "Delete" menu option
             case R.id.action_delete:
-                // Do nothing for now
+                if(uri!=null){
+                    DeleteConfirmationDialog();
+                }
                 return true;
             // Respond to a click on the "Up" arrow button in the app bar
             case android.R.id.home:
@@ -361,6 +375,49 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         // Create and show the AlertDialog
         AlertDialog alertDialog = builder.create();
         alertDialog.show();
+    }
+
+    public void DeleteConfirmationDialog(){
+
+        AlertDialog.Builder deleteDialogBuilder = new AlertDialog.Builder(this);
+        deleteDialogBuilder.setMessage(R.string.delete_dialog_msg);
+        deleteDialogBuilder.setPositiveButton(R.string.delete,new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        //calls a method that deletes the entry of the table
+                        deletePet(uri);
+                    }
+                });
+        deleteDialogBuilder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // User clicked the "Keep editing" button, so dismiss the dialog
+                // and continue editing the pet.
+                if (dialog != null) {
+                    dialog.dismiss();
+                }
+            }
+        });
+
+        AlertDialog alertDialog=deleteDialogBuilder.create();
+        alertDialog.show();
+    }
+
+    //deletes the row in the table with the id in the uri
+    private void deletePet(Uri uri){
+        if(uri!=null) {
+            int deletedLines = getContentResolver().delete(uri, null, null);
+
+            //toast a different message depending on the number of rows deleted
+            if (deletedLines != 0) {
+                Toast toast = Toast.makeText(getApplicationContext(), "Pet deleted", Toast.LENGTH_LONG);
+                toast.show();
+            } else {
+                Toast toast = Toast.makeText(getApplicationContext(), "No pet was deleted", Toast.LENGTH_LONG);
+                toast.show();
+            }
+            finish();
+        }
     }
 
 
