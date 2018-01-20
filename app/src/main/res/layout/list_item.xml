@@ -22,9 +22,10 @@
         android:fontFamily="sans-serif"
         android:textAppearance="?android:textAppearanceSmall"
         android:textColor="#AEB6BD"
-        android:text="Raza"
+        android:text="Breed unknown"
         android:paddingTop="10dp"
         android:paddingLeft="15dp"
-        android:paddingBottom="15dp"/>
+        android:paddingBottom="15dp"
+        />
 
 </LinearLayout>

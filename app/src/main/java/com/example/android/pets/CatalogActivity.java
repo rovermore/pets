@@ -34,6 +34,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.example.android.pets.data.PetDbHelper;
 import com.example.android.pets.data.PetsContract;
@@ -70,8 +71,6 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
         // To access our database, we instantiate our subclass of SQLiteOpenHelper
         // and pass the context, which is the current activity.
         mDbHelper = new PetDbHelper(this);
-
-        //displayDatabaseInfo();
 
         petCursorAdapter = new PetCursorAdapter(this,null);
 
@@ -185,10 +184,19 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
         builder.setPositiveButton(R.string.delete, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                //DELETE ALL PETS METHOD
+                //DELETE ALL PETS
+                deleteAllPets();
             }
         });
+
+        AlertDialog alertDialog=builder.create();
+        alertDialog.show();
     }
 
-    
+    private void deleteAllPets(){
+
+        int rowsDeleted = getContentResolver().delete(PetsContract.PetEntry.CONTENT_URI,null,null);
+        Log.v("CatalogActivity", rowsDeleted + " rows deleted from pet database");
+        Toast.makeText(this,rowsDeleted + " rows deleted from pet database",Toast.LENGTH_LONG).show();
+    }
 }
