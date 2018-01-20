@@ -17,6 +17,7 @@ package com.example.android.pets;
 
 import android.content.ContentUris;
 import android.content.ContentValues;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -25,6 +26,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -104,7 +106,7 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
     public void insertPet(){
         // Create a new map of values, where column names are the keys
         ContentValues values = new ContentValues();
-        values.put(PetsContract.PetEntry.COLUMN_NAME, "Toto");
+        values.put(PetsContract.PetEntry.COLUMN_NAME, "Thor");
         values.put(PetsContract.PetEntry.COLUMN_BREED, "Terrier");
         values.put(PetsContract.PetEntry.COLUMN_GENDER, 1);
         values.put(PetsContract.PetEntry.COLUMN_WEIGHT, 7);
@@ -133,7 +135,8 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
                 return true;
             // Respond to a click on the "Delete all entries" menu option
             case R.id.action_delete_all_entries:
-                // Do nothing for now
+                //Opens an alert dialor and delete the pets if selected
+                showDeleteAlertDialog();
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -165,4 +168,27 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
         super.onResume();
         getSupportLoaderManager().initLoader(0, null, this);
     }*/
+
+    private void showDeleteAlertDialog(){
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(R.string.delete_all_dialog_msg);
+        builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                //dismiss the dialog alert, doesn't delete any pet
+                if(dialog!=null){
+                    dialog.dismiss();
+                }
+            }
+        });
+        builder.setPositiveButton(R.string.delete, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                //DELETE ALL PETS METHOD
+            }
+        });
+    }
+
+    
 }
